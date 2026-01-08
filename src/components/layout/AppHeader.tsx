@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Bell, ChevronDown, LogOut, User, Settings } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +18,14 @@ import { Badge } from "@/components/ui/badge";
 
 export function AppHeader() {
   const { selectedTenant, setSelectedTenant, tenantList } = useTenant();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const selectedTenantName = selectedTenant === "all" 
     ? "All Tenants" 
@@ -90,10 +99,10 @@ export function AppHeader() {
               <Avatar className="h-8 w-8">
                 <AvatarImage src="" />
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  AD
+                  {user?.name?.slice(0, 2).toUpperCase() || "AD"}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden font-medium sm:inline-block">Admin</span>
+              <span className="hidden font-medium sm:inline-block">{user?.name || "Admin"}</span>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
@@ -109,7 +118,10 @@ export function AppHeader() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive">
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="text-destructive focus:text-destructive cursor-pointer"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               Logout
             </DropdownMenuItem>
